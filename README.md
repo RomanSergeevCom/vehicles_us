@@ -4,6 +4,8 @@
 https://vehicles-us-3r3b.onrender.com/
 
 ## Project description
+https://practicum.com/trainer/data-scientist/lesson/9e856b77-423e-45eb-851b-2356aa924206/?from=program
+
 The project is split into several steps that replicate the process described in one of the blog posts.
 https://practicum.com/blog/posts/taming-python-practicing-code-and-writing-your-own-calculator
 
