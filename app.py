@@ -1,53 +1,38 @@
 import streamlit as st
 import pandas as pd
 import plotly_express as px
-import plotly.graph_objects as go
 
 df = pd.read_csv('vehicles_us.csv')
 df['manufacturer'] = df['model'].apply(lambda x: x.split()[0])
 
-st.header('Data viewer')
-show_manuf_1k_ads = st.checkbox('Include manufacturers with less than 1000 ads')
-if not show_manuf_1k_ads:
-    df = df.groupby('manufacturer').filter(lambda x: len(x) > 1000)
+# For model_year
+df['model_year'] = df.groupby('model')['model_year'].transform(lambda x: x.fillna(x.median()))
 
+# For cylinders
+df['cylinders'] = df.groupby('model')['cylinders'].transform(lambda x: x.fillna(x.median()))
+
+# For odometer
+df['odometer'] = df.groupby(['model_year', 'model'])['odometer'].transform(lambda x: x.fillna(x.mean()))
+
+# For paint_color
+df['paint_color'] = df['paint_color'].fillna('no info')
+
+# create a text header above the dataframe
+st.header('Data viewer') 
+# display the dataframe with streamlit
 st.dataframe(df)
+
 st.header('Vehicle types by manufacturer')
-st.write(px.histogram(df, x='manufacturer', color='type'))
+# create a plotly histogram figure
+fig = px.histogram(df, x='manufacturer', color='type')
+# display the figure with streamlit
+st.write(fig)
+
 st.header('Histogram of `condition` vs `model_year`')
+fig = px.histogram(df, x='model_year', color='condition')
+st.write(fig)
 
-# -------------------------------------------------------
-# histograms in plotly:
-# fig = go.Figure()
-# fig.add_trace(go.Histogram(x=df[df['condition']=='good']['model_year'], name='good'))
-# fig.add_trace(go.Histogram(x=df[df['condition']=='excellent']['model_year'], name='excellent'))
-# fig.update_layout(barmode='stack')
-# st.write(fig)
-# works, but too many lines of code
-# -------------------------------------------------------
-
-# histograms in plotly_express:
-st.write(px.histogram(df, x='model_year', color='condition'))
-# a lot more concise!
-# -------------------------------------------------------
-
-st.header('Compare price distribution between manufacturers')
-manufac_list = sorted(df['manufacturer'].unique())
-manufacturer_1 = st.selectbox('Select manufacturer 1',
-                              manufac_list, index=manufac_list.index('chevrolet'))
-
-manufacturer_2 = st.selectbox('Select manufacturer 2',
-                              manufac_list, index=manufac_list.index('hyundai'))
-mask_filter = (df['manufacturer'] == manufacturer_1) | (df['manufacturer'] == manufacturer_2)
-df_filtered = df[mask_filter]
-normalize = st.checkbox('Normalize histogram', value=True)
-if normalize:
-    histnorm = 'percent'
-else:
-    histnorm = None
-st.write(px.histogram(df_filtered,
-                      x='price',
-                      nbins=30,
-                      color='manufacturer',
-                      histnorm=histnorm,
-                      barmode='overlay'))
+st.header('`Scatter of model_year` vs `odometer`')
+fig = px.scatter(df, x='model_year', y='odometer')
+# Display the plot
+st.plotly_chart(fig)
