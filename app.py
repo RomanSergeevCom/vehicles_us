@@ -17,6 +17,10 @@ df['odometer'] = df.groupby(['model_year', 'model'])['odometer'].transform(lambd
 # For paint_color
 df['paint_color'] = df['paint_color'].fillna('no info')
 
+# For is_4wd
+data['is_4wd'] = data['is_4wd'].fillna(0)
+
+
 # create a text header above the dataframe
 st.header('Data viewer') 
 # display the dataframe with streamlit
